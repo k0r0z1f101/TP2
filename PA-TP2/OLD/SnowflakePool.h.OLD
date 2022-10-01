@@ -1,0 +1,29 @@
+#pragma once
+
+#include <cstddef> // pour size_t
+#include <memory> // pour unique_ptr
+
+#include "Constants.h"
+#include "Snowflake.h"
+#include "SnowflakeNoContact.h"
+#include "SnowflakeRebound.h"
+#include "SnowflakeSine.h"
+
+using std::unique_ptr;
+
+class SnowflakePool							//16 bytes
+{
+public:
+	SnowflakePool();
+	void spawn(double x, double y);
+	void destroy(size_t deleteIdx);
+	Snowflake& get(size_t idx);
+	size_t getNbSnowflakes() const;
+
+private:
+	unique_ptr<SnowflakeRebound[]> 		poolRebound;			//8 bytes
+	unique_ptr<SnowflakeNoContact[]> 	poolNoContact;		//8 bytes
+	unique_ptr<SnowflakeSine[]> 		poolSine;		//8 bytes
+	unique_ptr<Snowflake[]> 			poolStandard;		//8 bytes
+	size_t nbParticles;						//8 bytes
+};

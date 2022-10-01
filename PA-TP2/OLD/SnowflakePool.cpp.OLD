@@ -1,0 +1,49 @@
+#include "SnowflakePool.h"
+
+#include <iostream>
+
+using namespace std;
+
+SnowflakePool::SnowflakePool() : nbParticles{0}
+{
+	// Initialiser le pool d'objets
+	cout << "pool " << sizeof(poolStandard) << endl;
+	cout << "nbParticles " << sizeof(nbParticles) << endl;
+	cout << "pool " << &poolStandard << endl;
+	poolRebound = make_unique<SnowflakeRebound[]>(MAX_SNOWFLAKES * 0.1);
+	poolNoContact = make_unique<SnowflakeNoContact[]>(MAX_SNOWFLAKES * (0.25 - 0.1));
+	poolSine = make_unique<SnowflakeSine[]>(MAX_SNOWFLAKES * (0.5 - 0.25));
+	poolStandard = make_unique<Snowflake[]>(MAX_SNOWFLAKES * 0.5);
+}
+
+void SnowflakePool::spawn(double newX, double newY)
+{
+	// "Créer" un snowflake de plus en activant
+	// le prochain snowflake inactif
+	if(nbParticles <= MAX_SNOWFLAKES)
+	{
+		//pool[nbParticles].init(newX, newY);
+		cout << "spawn" << endl;
+		++nbParticles;
+	}
+}
+
+void SnowflakePool::destroy(size_t deleteIdx)
+{
+	// "Supprimer" le snowflake demandé en déplaçant
+	// le dernier snowflake utilisé par-dessus l'objet
+	// à supprimer
+	poolRebound[deleteIdx].init(rand()/(double)RAND_MAX * SCREEN_WIDTH, rand()/(double)RAND_MAX * SCREEN_HEIGHT);
+	poolRebound[nbParticles].init(rand()/(double)RAND_MAX * SCREEN_WIDTH, rand()/(double)RAND_MAX * SCREEN_HEIGHT);
+}
+
+Snowflake& SnowflakePool::get(size_t idx)
+{
+	// Accès à un des snowflakes
+	return poolRebound[idx];
+}
+
+size_t SnowflakePool::getNbSnowflakes() const
+{
+		return nbParticles;
+}
