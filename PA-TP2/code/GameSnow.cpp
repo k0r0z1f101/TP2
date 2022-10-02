@@ -29,10 +29,10 @@ void GameSnow::init(int n)
 {
     cout << "Init with " << n << " particles" << endl;
 
-    snowflakePool = make_unique<SnowflakePool<Snowflake>>();
-    snowflakeNoContactPool = make_unique<SnowflakePool<SnowflakeNoContact>>();
-    snowflakeReboundPool = make_unique<SnowflakePool<SnowflakeRebound>>();
-    snowflakeSinePool = make_unique<SnowflakePool<SnowflakeSine>>();
+    snowflakePool = make_unique<TSnowflakePool<Snowflake>>();
+    snowflakeNoContactPool = make_unique<TSnowflakePool<SnowflakeNoContact>>();
+    snowflakeReboundPool = make_unique<TSnowflakePool<SnowflakeRebound>>();
+    snowflakeSinePool = make_unique<TSnowflakePool<SnowflakeSine>>();
 
     for(int i=0; i<n; i++) {
         double x = rand()/(double)RAND_MAX * SCREEN_WIDTH;
@@ -52,21 +52,13 @@ void GameSnow::addSnowflake(double x, double y)
 {
     int rnd = rand();
     if(rnd < RAND_MAX / 10)
-    {
         snowflakeReboundPool->spawn();
-    }
     else if(rnd < RAND_MAX / 5 * 2)
-    {
         snowflakeNoContactPool->spawn();
-    }
     else if(rnd < RAND_MAX / 2)
-    {
         snowflakeSinePool->spawn();
-    }
     else
-    {
         snowflakePool->spawn();
-    }
 }
 
 void GameSnow::handleInput(const SDL_Event& event)
@@ -141,6 +133,7 @@ void GameSnow::handleInput(const SDL_Event& event)
 void GameSnow::update(unsigned long dt)
 {
 
+
     if(m_pause) return;
 
     double delta_t = dt / 1000.0;
@@ -148,34 +141,10 @@ void GameSnow::update(unsigned long dt)
     // Physics
     p.update(delta_t);
 
-    for(size_t i = 0; i < snowflakePool->getNbSnowflakes(); ++i)
-    {
-    	snowflakePool->get(i).update(delta_t);
-    	snowflakePool->get(i).testCollision(p);
-    	if(snowflakePool->get(i).shouldDelete())
-    		snowflakePool->destroy(i);
-    }
-    for(size_t i = 0; i < snowflakeNoContactPool->getNbSnowflakes(); ++i)
-    {
-    	snowflakeNoContactPool->get(i).update(delta_t);
-    	snowflakeNoContactPool->get(i).testCollision(p);
-    	if(snowflakeNoContactPool->get(i).shouldDelete())
-    		snowflakeNoContactPool->destroy(i);
-    }
-    for(size_t i = 0; i < snowflakeReboundPool->getNbSnowflakes(); ++i)
-    {
-    	snowflakeReboundPool->get(i).update(delta_t);
-    	snowflakeReboundPool->get(i).testCollision(p);
-    	if(snowflakeReboundPool->get(i).shouldDelete())
-    		snowflakeReboundPool->destroy(i);
-    }
-    for(size_t i = 0; i < snowflakeSinePool->getNbSnowflakes(); ++i)
-    {
-    	snowflakeSinePool->get(i).update(delta_t);
-    	snowflakeSinePool->get(i).testCollision(p);
-    	if(snowflakeSinePool->get(i).shouldDelete())
-    		snowflakeSinePool->destroy(i);
-    }
+    TUpdatePool(snowflakePool, delta_t, p);
+    TUpdatePool(snowflakeNoContactPool, delta_t, p);
+    TUpdatePool(snowflakeReboundPool, delta_t, p);
+    TUpdatePool(snowflakeSinePool, delta_t, p);
 }
 
 void GameSnow::render(SDL_Renderer* renderer) const
@@ -187,22 +156,10 @@ void GameSnow::render(SDL_Renderer* renderer) const
     // Draw particles
     p.render(renderer);
 
-    for(size_t i = 0; i < snowflakePool->getNbSnowflakes(); ++i)
-    {
-    	snowflakePool->get(i).render(renderer);
-    }
-    for(size_t i = 0; i < snowflakeNoContactPool->getNbSnowflakes(); ++i)
-    {
-    	snowflakeNoContactPool->get(i).render(renderer);
-    }
-    for(size_t i = 0; i < snowflakeReboundPool->getNbSnowflakes(); ++i)
-    {
-    	snowflakeReboundPool->get(i).render(renderer);
-    }
-    for(size_t i = 0; i < snowflakeSinePool->getNbSnowflakes(); ++i)
-    {
-    	snowflakeSinePool->get(i).render(renderer);
-    }
+    TRenderPool(snowflakePool, renderer);
+    TRenderPool(snowflakeNoContactPool, renderer);
+    TRenderPool(snowflakeReboundPool, renderer);
+    TRenderPool(snowflakeSinePool, renderer);
 
     SDL_RenderPresent(renderer);
 }

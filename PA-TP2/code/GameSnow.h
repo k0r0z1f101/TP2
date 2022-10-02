@@ -8,6 +8,29 @@
 #include "Game.h"
 #include "SnowflakePool.h"
 
+//update, test collision and check if should delete the pool's snowflakes
+template<typename T>
+void TUpdatePool(T& pool, double& delta, Player& player)
+{
+	for(size_t i = 0; i < pool->getNbSnowflakes(); ++i)
+	{
+		pool->get(i).update(delta);
+		pool->get(i).testCollision(player);
+		if(pool->get(i).shouldDelete())
+			pool->destroy(i);
+	}
+}
+
+//render the pool's snowflakes
+template<typename T>
+void TRenderPool(T& pool, SDL_Renderer* renderer)
+{
+	for(size_t i = 0; i < pool->getNbSnowflakes(); ++i)
+	{
+		pool->get(i).render(renderer);
+	}
+}
+
 class GameSnow : public Game
 {
 public:
@@ -26,8 +49,8 @@ private:
 
     Player p;
 
-    std::unique_ptr<SnowflakePool<Snowflake>> snowflakePool;
-    std::unique_ptr<SnowflakePool<SnowflakeNoContact>> snowflakeNoContactPool;
-    std::unique_ptr<SnowflakePool<SnowflakeRebound>> snowflakeReboundPool;
-    std::unique_ptr<SnowflakePool<SnowflakeSine>> snowflakeSinePool;
+    std::unique_ptr<TSnowflakePool<Snowflake>> snowflakePool;
+    std::unique_ptr<TSnowflakePool<SnowflakeNoContact>> snowflakeNoContactPool;
+    std::unique_ptr<TSnowflakePool<SnowflakeRebound>> snowflakeReboundPool;
+    std::unique_ptr<TSnowflakePool<SnowflakeSine>> snowflakeSinePool;
 };

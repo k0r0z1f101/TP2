@@ -14,11 +14,11 @@ using std::unique_ptr;
 using std::make_unique;
 
 template<typename T>
-class SnowflakePool							//16 bytes
+class TSnowflakePool							//16 bytes
 {
 public:
 
-	SnowflakePool() : nbParticles{0}
+	TSnowflakePool() : nbParticles{0}
 	{
 		// Initialiser le pool d'objets
 		pool = make_unique<T[]>(MAX_SNOWFLAKES);
